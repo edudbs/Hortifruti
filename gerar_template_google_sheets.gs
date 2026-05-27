@@ -107,6 +107,15 @@ function atualizarTudoDoDrive() {
 }
 
 function importarMaisRecenteParaAba(ss, folderId, rawSheetName, baseSheetName, mapperFn) {
+  if (arguments.length === 0) {
+    atualizarTudoDoDrive();
+    return;
+  }
+  ss = ss || SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw new Error('Não foi possível identificar a planilha ativa.');
+  if (!folderId || !rawSheetName || !baseSheetName || typeof mapperFn !== 'function') {
+    throw new Error('Parâmetros inválidos em importarMaisRecenteParaAba. Execute atualizarTudoDoDrive() ou passe todos os argumentos.');
+  }
   const raw = ss.getSheetByName(rawSheetName), base = ss.getSheetByName(baseSheetName);
   if (!raw || !base) throw new Error('Aba não encontrada: '+rawSheetName+' ou '+baseSheetName);
   const folder = DriveApp.getFolderById(folderId);
