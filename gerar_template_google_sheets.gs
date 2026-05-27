@@ -22,6 +22,10 @@ function criarTemplateCruzamento() {
 function reaplicarEstruturaNaPlanilhaAtual() { reaplicarEstrutura_(SpreadsheetApp.getActiveSpreadsheet()); }
 
 function reaplicarEstrutura_(ss) {
+  // Força locale pt-BR antes de aplicar fórmulas com separador ';' e funções em PT-BR.
+  ss.setSpreadsheetLocale('pt_BR');
+  SpreadsheetApp.flush();
+
   const vendasRaw = ss.getSheetByName('VENDAS_RAW');
   const comprasRaw = ss.getSheetByName('COMPRAS_RAW');
   const vendasBase = ss.getSheetByName('VENDAS_BASE');
@@ -39,60 +43,60 @@ function reaplicarEstrutura_(ss) {
   comprasBase.getRange(1,1,1,COMPRAS_BASE_HEADERS.length).setValues([COMPRAS_BASE_HEADERS]);
 
   vendasStg.getRange('A1:L1').setValues([['data','codigo_raw','codigo_norm','descricao','quantidade','faturamento','preco_medio','custo_total','lucro','margem_pct','markup_pct','classificacao']]);
-  vendasStg.getRange('A2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!B2:B="";"";VENDAS_BASE!A2:A))');
-  vendasStg.getRange('B2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!B2:B="";"";VENDAS_BASE!B2:B))');
-  vendasStg.getRange('C2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!B2:B="";"";REGEXREPLACE(TO_TEXT(VENDAS_BASE!B2:B);"^0+";"")))');
-  vendasStg.getRange('D2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!B2:B="";"";VENDAS_BASE!C2:C))');
-  vendasStg.getRange('E2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!D2:D="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!D2:D);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!D2:D);".";",")))))');
-  vendasStg.getRange('F2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!E2:E="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!E2:E);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!E2:E);".";",")))))');
-  vendasStg.getRange('G2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!F2:F="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!F2:F);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!F2:F);".";",")))))');
-  vendasStg.getRange('H2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!G2:G="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!G2:G);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!G2:G);".";",")))))');
-  vendasStg.getRange('I2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!H2:H="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!H2:H);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!H2:H);".";",")))))');
-  vendasStg.getRange('J2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!I2:I="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!I2:I);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!I2:I);".";","))/100)))');
-  vendasStg.getRange('K2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!J2:J="";"";SEERRO(VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!J2:J);",";".");VALOR.NÚMERO(TO_TEXT(VENDAS_BASE!J2:J);".";","))/100)))');
-  vendasStg.getRange('L2').setFormula('=ARRAYFORMULA(SE(VENDAS_BASE!B2:B="";"";VENDAS_BASE!M2:M))');
+  vendasStg.getRange('A2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!B2:B="";"";VENDAS_BASE!A2:A))');
+  vendasStg.getRange('B2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!B2:B="";"";VENDAS_BASE!B2:B))');
+  vendasStg.getRange('C2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!B2:B="";"";REGEXREPLACE(TO_TEXT(VENDAS_BASE!B2:B);"^0+";"")))');
+  vendasStg.getRange('D2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!B2:B="";"";VENDAS_BASE!C2:C))');
+  vendasStg.getRange('E2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!D2:D="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!D2:D;".";""));0)))');
+  vendasStg.getRange('F2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!E2:E="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!E2:E;".";""));0)))');
+  vendasStg.getRange('G2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!F2:F="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!F2:F;".";""));0)))');
+  vendasStg.getRange('H2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!G2:G="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!G2:G;".";""));0)))');
+  vendasStg.getRange('I2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!H2:H="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!H2:H;".";""));0)))');
+  vendasStg.getRange('J2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!I2:I="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!I2:I;".";""));0)/100)))');
+  vendasStg.getRange('K2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!J2:J="";"";IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!J2:J;".";""));0)/100)))');
+  vendasStg.getRange('L2').setFormula('=ARRAYFORMULA(IF(VENDAS_BASE!B2:B="";"";VENDAS_BASE!M2:M))');
 
   comprasStg.getRange('A1:J1').setValues([['data_emissao','fornecedor','documento','codigo_raw','codigo_norm','descricao','qtd_por_unidade','qtd_itens','qtd_compra_ajustada','valor_total_item']]);
-  comprasStg.getRange('A2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!A2:A))');
-  comprasStg.getRange('B2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!B2:B))');
-  comprasStg.getRange('C2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!C2:C))');
-  comprasStg.getRange('D2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!D2:D))');
-  comprasStg.getRange('E2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";REGEXREPLACE(TO_TEXT(COMPRAS_BASE!D2:D);"^0+";"")))');
-  comprasStg.getRange('F2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!E2:E))');
-  comprasStg.getRange('G2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!F2:F))');
-  comprasStg.getRange('H2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!G2:G))');
-  comprasStg.getRange('I2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";SEERRO(COMPRAS_BASE!F2:F*COMPRAS_BASE!G2:G;0)))');
-  comprasStg.getRange('J2').setFormula('=ARRAYFORMULA(SE(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!J2:J))');
+  comprasStg.getRange('A2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!A2:A))');
+  comprasStg.getRange('B2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!B2:B))');
+  comprasStg.getRange('C2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!C2:C))');
+  comprasStg.getRange('D2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!D2:D))');
+  comprasStg.getRange('E2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";REGEXREPLACE(TO_TEXT(COMPRAS_BASE!D2:D);"^0+";"")))');
+  comprasStg.getRange('F2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!E2:E))');
+  comprasStg.getRange('G2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!F2:F))');
+  comprasStg.getRange('H2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!G2:G))');
+  comprasStg.getRange('I2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";IFERROR(COMPRAS_BASE!F2:F*COMPRAS_BASE!G2:G;0)))');
+  comprasStg.getRange('J2').setFormula('=ARRAYFORMULA(IF(COMPRAS_BASE!D2:D="";"";COMPRAS_BASE!J2:J))');
 
   sku.getRange('A1:M1').setValues([['codigo_norm','descricao_venda','classe_abc','qtd_vendida','faturamento_total','custo_total_venda','preco_unit_venda','qtd_comprada_ajustada','valor_total_comprado','custo_unit_compra','spread_unit','margem_bruta_estimada','match_compra']]);
-  sku.getRange('A2').setFormula('=CLASSIFICAR(ÚNICO(FILTRO(VENDAS_STG!C:C;VENDAS_STG!C:C<>"")))');
-  sku.getRange('B2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SEERRO(PROCV(A2:A;{VENDAS_STG!C:C\VENDAS_STG!D:D};2;FALSO);"")))');
-  sku.getRange('C2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SEERRO(PROCV(A2:A;{VENDAS_STG!C:C\VENDAS_STG!L:L};2;FALSO);"")))');
-  sku.getRange('D2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SOMASE(VENDAS_STG!C:C;A2:A;VENDAS_STG!E:E)))');
-  sku.getRange('E2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SOMASE(VENDAS_STG!C:C;A2:A;VENDAS_STG!F:F)))');
-  sku.getRange('F2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SOMASE(VENDAS_STG!C:C;A2:A;VENDAS_STG!H:H)))');
-  sku.getRange('G2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SEERRO(E2:E/D2:D;0)))');
-  sku.getRange('H2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SOMASE(COMPRAS_STG!E:E;A2:A;COMPRAS_STG!I:I)))');
-  sku.getRange('I2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SOMASE(COMPRAS_STG!E:E;A2:A;COMPRAS_STG!J:J)))');
-  sku.getRange('J2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SEERRO(I2:I/H2:H;0)))');
-  sku.getRange('K2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";G2:G-J2:J))');
-  sku.getRange('L2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SEERRO(K2:K/G2:G;0)))');
-  sku.getRange('M2').setFormula('=ARRAYFORMULA(SE(A2:A="";"";SE(H2:H>0;"OK";"SEM_MATCH")))');
+  sku.getRange('A2').setFormula('=SORT(UNIQUE(FILTER(VENDAS_STG!C:C;VENDAS_STG!C:C<>"")))');
+  sku.getRange('B2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";IFERROR(VLOOKUP(A2:A;{VENDAS_STG!C:C\VENDAS_STG!D:D},2,FALSE);"")))');
+  sku.getRange('C2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";IFERROR(VLOOKUP(A2:A;{VENDAS_STG!C:C\VENDAS_STG!L:L},2,FALSE);"")))');
+  sku.getRange('D2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";SUMIF(VENDAS_STG!C:C;A2:A;VENDAS_STG!E:E)))');
+  sku.getRange('E2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";SUMIF(VENDAS_STG!C:C;A2:A;VENDAS_STG!F:F)))');
+  sku.getRange('F2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";SUMIF(VENDAS_STG!C:C;A2:A;VENDAS_STG!H:H)))');
+  sku.getRange('G2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";IFERROR(E2:E/D2:D;0)))');
+  sku.getRange('H2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";SUMIF(COMPRAS_STG!E:E;A2:A;COMPRAS_STG!I:I)))');
+  sku.getRange('I2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";SUMIF(COMPRAS_STG!E:E;A2:A;COMPRAS_STG!J:J)))');
+  sku.getRange('J2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";IFERROR(I2:I/H2:H;0)))');
+  sku.getRange('K2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";G2:G-J2:J))');
+  sku.getRange('L2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";IFERROR(K2:K/G2:G;0)))');
+  sku.getRange('M2').setFormula('=ARRAYFORMULA(IF(A2:A="";"";IF(H2:H>0;"OK";"SEM_MATCH")))');
 
   painel.getRange('A1:B1').setValues([['Indicador','Valor']]);
   painel.getRange('A2:B5').setValues([
-    ['SKUs vendidos','=CONT.VALORES(SKU_RESUMO!A2:A)'],
-    ['SKUs com match compra','=CONT.SE(SKU_RESUMO!M2:M;"OK")'],
-    ['Cobertura de match (%)','=SEERRO(CONT.SE(SKU_RESUMO!M2:M;"OK")/CONT.VALORES(SKU_RESUMO!A2:A);0)'],
-    ['Margem bruta estimada ponderada (%)','=SEERRO(SOMARPRODUTO(SKU_RESUMO!L2:L;SKU_RESUMO!E2:E)/SOMA(SKU_RESUMO!E2:E);0)']
+    ['SKUs vendidos','=COUNTA(SKU_RESUMO!A2:A)'],
+    ['SKUs com match compra','=COUNTIF(SKU_RESUMO!M2:M;"OK")'],
+    ['Cobertura de match (%)','=IFERROR(COUNTIF(SKU_RESUMO!M2:M;"OK")/COUNTA(SKU_RESUMO!A2:A);0)'],
+    ['Margem bruta estimada ponderada (%)','=IFERROR(SUMPRODUCT(SKU_RESUMO!L2:L;SKU_RESUMO!E2:E)/SOMA(SKU_RESUMO!E2:E);0)']
   ]);
 
   val.getRange('A1:B1').setValues([['Validação','Valor']]);
   val.getRange('A2:B5').setValues([
-    ['% códigos vazios em VENDAS_STG','=SEERRO(CONT.SE(VENDAS_STG!C2:C;"")/CONT.VALORES(VENDAS_STG!B2:B);0)'],
-    ['% códigos vazios em COMPRAS_STG','=SEERRO(CONT.SE(COMPRAS_STG!E2:E;"")/CONT.VALORES(COMPRAS_STG!D2:D);0)'],
-    ['linhas com custo_unit_compra = 0 e match OK','=CONT.SES(SKU_RESUMO!M2:M;"OK";SKU_RESUMO!J2:J;0)'],
-    ['linhas com preco_unit_venda = 0','=CONT.SE(SKU_RESUMO!G2:G;0)']
+    ['% códigos vazios em VENDAS_STG','=IFERROR(COUNTIF(VENDAS_STG!C2:C;"")/COUNTA(VENDAS_STG!B2:B);0)'],
+    ['% códigos vazios em COMPRAS_STG','=IFERROR(COUNTIF(COMPRAS_STG!E2:E;"")/COUNTA(COMPRAS_STG!D2:D);0)'],
+    ['linhas com custo_unit_compra = 0 e match OK','=COUNTIFS(SKU_RESUMO!M2:M;"OK";SKU_RESUMO!J2:J;0)'],
+    ['linhas com preco_unit_venda = 0','=COUNTIF(SKU_RESUMO!G2:G;0)']
   ]);
 }
 
