@@ -12,7 +12,8 @@ Automatizar a entrada de notas de compra em uma base consolidada para análise, 
 
 1. Envie um arquivo `.csv` para a pasta do Drive:
    - `1iL1f5CWUEtceU-iMm_kcNVQBhepo6Lnr`
-   - Caminho para obter o arquivo: https://laticiniodozuzu.varejofacil.com/app/#/vf?r=%2FrelatorioNotaFiscalCompra%2Findex&b=Compra,Relat%C3%B3rios,Nota%20fiscal%20entrada (Varejo Facil > Compras > Relatórios / Nota fiscal entrada > Filtros [Seção / 9 - Hortifruti] > Formato [Analítico] > Exibição [CSV])
+   - COMPRAS - Caminho para obter o arquivo: https://laticiniodozuzu.varejofacil.com/app/#/vf?r=%2FrelatorioNotaFiscalCompra%2Findex&b=Compra,Relat%C3%B3rios,Nota%20fiscal%20entrada (Varejo Facil > Compra > Relatórios / Nota fiscal entrada > Filtros [Seção / 9 - Hortifruti] > Formato [Analítico] > Exibição [CSV]).
+   - VENDAS - Caminho para obter o arquivo: https://laticiniodozuzu.varejofacil.com/app/#/vf?r=%2FrelatorioABCVenda%2Findex&b=Venda,Relat%C3%B3rios%20vendas,ABC%20venda (Varejo Facil > Venda > Relatórios / ABC Venda > Filtros [Seção / 9 - Hortifruti] > Quebra Nível 1 [Data] > Opções [Classifica ABC] > Exibição [CSV].
 2. Abra a planilha no Google Sheets.
 3. Execute a função `importarCSVLimpoDaPasta` via Apps Script.
 4. O script processa o CSV mais recente e adiciona somente dados novos na aba `Dados Limpos`.
