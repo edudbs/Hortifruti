@@ -8,167 +8,319 @@ docs/reorganizacao-documentacao
 
 ## 1. Objetivo
 
-Preparar a auditoria da planilha operacional real do Projeto Hortifruti, comparando o estado efetivo em produção com o template e os Apps Script versionados.
+Documentar a auditoria estrutural da planilha operacional real do Projeto Hortifruti, confrontando o estado vivo da planilha com a arquitetura, os scripts e os documentos já versionados.
 
-Esta frente existe para responder:
+Esta auditoria foi realizada a partir do arquivo exportado da planilha real:
 
 ```text
-template oficial == planilha operacional real?
+Template - Cruzamento Vendas x Compras.xlsx
 ```
 
-Este documento ainda não confirma fórmulas reais da planilha, pois depende da coleta direta no Google Sheets operacional.
+Nenhuma alteração foi executada na planilha.
 
 ---
 
-## 2. Escopo planejado
+## 2. Escopo analisado
 
-A auditoria deve verificar:
+Foram analisadas:
 
 - abas existentes;
-- fórmulas reais por aba;
-- células e ranges com fórmulas;
-- divergências em relação ao template;
-- fórmulas alteradas manualmente;
-- fórmulas quebradas;
-- ranges abertos;
-- validações existentes;
-- abas extras;
-- colunas extras;
-- dependências não documentadas.
+- ranges efetivos;
+- fórmulas reais exportadas;
+- fórmulas convertidas pelo Excel;
+- dependências entre abas;
+- camadas analíticas adicionais;
+- sinais de divergência entre template e operação real.
 
 ---
 
-## 3. Fontes de comparação
+## 3. Abas encontradas na planilha real
 
-A auditoria deve comparar a planilha real contra:
-
-- `apps-script/gerar_template_google_sheets.gs`;
-- `docs/auditoria/catalogo-formulas-criticas.md`;
-- `docs/auditoria/formulas-dependencias.md`;
-- `docs/arquitetura/mapa-real-atual.md`;
-- `docs/regras/regras-implicitas-negocio.md`.
-
----
-
-## 4. Abas esperadas
-
-| Aba esperada | Status na planilha real | Observação |
-|---|---|---|
-| VENDAS_RAW | A verificar |  |
-| COMPRAS_RAW | A verificar |  |
-| VENDAS_BASE | A verificar |  |
-| COMPRAS_BASE | A verificar |  |
-| VENDAS_STG | A verificar |  |
-| COMPRAS_STG | A verificar |  |
-| SKU_RESUMO | A verificar |  |
-| PAINEL | A verificar |  |
-| VALIDACOES | A verificar |  |
+| Ordem | Aba | Range encontrado | Classificação |
+|---|---|---|---|
+| 1 | VENDAS_RAW | A1:R1745 | entrada bruta |
+| 2 | COMPRAS_RAW | A1:AU438 | entrada bruta |
+| 3 | VENDAS_BASE | A1:M1745 | base tratada |
+| 4 | COMPRAS_BASE | A1:K438 | base tratada |
+| 5 | VENDAS_STG | A1:M2170 | staging |
+| 6 | COMPRAS_STG | A1:K1000 | staging |
+| 7 | SKU_RESUMO | A1:M1000 | consolidação SKU |
+| 8 | ANALISE_SKU_SEMANAL | A1:P1000 | análise operacional semanal |
+| 9 | ANALISE_SKU_GERAL | A1:O1000 | análise operacional geral |
+| 10 | AUDITORIA_OPERACIONAL | A1:P347 | auditoria operacional |
+| 11 | CALENDARIO_OPERACIONAL | A1:H1000 | calendário operacional |
+| 12 | PAINEL | A1:B5 | painel gerencial |
+| 13 | VALIDACOES | A1:B5 | validações |
 
 ---
 
-## 5. Fórmulas críticas a validar
+## 4. Descobertas principais
 
-| ID | Local esperado | Padrão esperado | Status | Observação |
-|---|---|---|---|---|
-| FR-001 | VENDAS_STG | ARRAYFORMULA / parsing / IFERROR | A verificar |  |
-| FR-002 | COMPRAS_STG | ARRAYFORMULA / parsing / cálculo | A verificar |  |
-| FR-003 | SKU_RESUMO | SORT / UNIQUE / FILTER | A verificar |  |
-| FR-004 | SKU_RESUMO | VLOOKUP / IFERROR | A verificar |  |
-| FR-005 | SKU_RESUMO | SUMIF | A verificar |  |
-| FR-006 | SKU_RESUMO | divisões com IFERROR(...;0) | A verificar |  |
-| FR-007 | PAINEL | COUNTA / COUNTIF / SUMPRODUCT | A verificar |  |
-| FR-008 | VALIDACOES | COUNTIF / COUNTIFS / IFERROR | A verificar |  |
+## 4.1 A planilha real evoluiu além do template inicial
 
----
+Foram encontradas abas adicionais não contempladas no mapa inicial:
 
-## 6. Evidências necessárias
+- `ANALISE_SKU_SEMANAL`;
+- `ANALISE_SKU_GERAL`;
+- `AUDITORIA_OPERACIONAL`;
+- `CALENDARIO_OPERACIONAL`.
 
-Para concluir a auditoria, coletar da planilha real:
+Essas abas indicam que a planilha real possui uma camada operacional e analítica mais madura do que a arquitetura inicialmente documentada.
 
-- lista de abas;
-- fórmulas das abas STG;
-- fórmulas do SKU_RESUMO;
-- fórmulas do PAINEL;
-- fórmulas da aba VALIDACOES;
-- print ou exportação das fórmulas críticas;
-- indicação de fórmulas editadas manualmente;
-- indicação de abas adicionais não previstas.
+## 4.2 Os ranges foram parcialmente limitados
 
----
+Ao contrário do padrão inicial de colunas inteiras em todos os pontos, a planilha real utiliza diversos ranges limitados, como:
 
-## 7. Método recomendado de coleta
+- `VENDAS_BASE!B2:B2170`;
+- `COMPRAS_BASE!D2:D1000`;
+- `SKU_RESUMO!A2:A1000`;
+- `ANALISE_SKU_SEMANAL!A2:P1000`.
 
-Preferencialmente usar uma destas opções:
+Isso sugere tentativa de estabilização de performance e redução de propagação infinita.
 
-### Opção A — exportação manual
+## 4.3 Fórmulas Google Sheets foram parcialmente convertidas no Excel
 
-No Google Sheets:
+Algumas fórmulas aparecem no `.xlsx` como:
 
-1. abrir a planilha real;
-2. ativar visualização de fórmulas, se necessário;
-3. copiar fórmulas críticas por aba;
-4. registrar célula/range;
-5. enviar para auditoria.
+```text
+__xludf.DUMMYFUNCTION(...)
+```
 
-### Opção B — Apps Script auxiliar somente leitura
+Isso ocorre porque algumas funções nativas do Google Sheets não são plenamente convertidas pelo Excel.
 
-Criar futuramente script temporário de leitura que liste:
-
-- aba;
-- célula;
-- fórmula;
-- range;
-- status.
-
-Esse script deve ser somente leitura e só poderá ser criado com aprovação explícita.
+Ainda assim, a estrutura lógica principal foi preservada o suficiente para auditoria.
 
 ---
 
-## 8. Riscos que esta auditoria pretende detectar
+## 5. Fórmulas reais por camada
 
-- fórmula real divergente do template;
-- fórmula apagada;
-- fórmula sobrescrita manualmente;
-- coluna adicionada sem documentação;
-- aba extra com regra paralela;
-- PAINEL calculando com fonte divergente;
-- VALIDACOES incompleta;
-- ranges contaminados;
-- lógica financeira fora do inventário.
+## 5.1 VENDAS_STG
+
+Exemplos encontrados:
+
+```text
+A2 = IF(VENDAS_BASE!B2:B2170="","",VENDAS_BASE!A2:A2170)
+B2 = IF(VENDAS_BASE!B2:B2170="","",VENDAS_BASE!B2:B2170)
+E2 = IF(VENDAS_BASE!D2:D2170="","",IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!D2:D2170,".","")),0))
+J2 = IF(VENDAS_BASE!I2:I2170="","",IFERROR(VALUE(SUBSTITUTE(VENDAS_BASE!I2:I2170,".","")),0)/100)
+M2 = IF(A2:A2170="","",YEAR(A2:A2170)&"-S"&TEXT(ISOWEEKNUM(A2:A2170),"00"))
+```
+
+### Observação
+
+A camada `VENDAS_STG` confirma:
+
+- parsing financeiro;
+- uso de `IFERROR(...;0)`;
+- dependência de ranges limitados;
+- criação de semana operacional.
+
+## 5.2 COMPRAS_STG
+
+Exemplos encontrados:
+
+```text
+A2 = IF(COMPRAS_BASE!D2:D1000="","",COMPRAS_BASE!A2:A1000)
+E2 = ARRAYFORMULA/REGEXREPLACE convertido via DUMMYFUNCTION
+I2 = IF(COMPRAS_BASE!D2:D1000="","",IFERROR(COMPRAS_BASE!F2:F1000*COMPRAS_BASE!G2:G1000,0))
+K2 = IF(A2:A1000="","",YEAR(A2:A1000)&"-S"&TEXT(ISOWEEKNUM(A2:A1000),"00"))
+```
+
+### Observação
+
+A camada `COMPRAS_STG` confirma:
+
+- cálculo de custo total por quantidade x valor;
+- dependência de parsing;
+- criação de semana operacional;
+- uso de `IFERROR(...;0)`.
+
+## 5.3 SKU_RESUMO
+
+Exemplos encontrados:
+
+```text
+A2 = SORT/UNIQUE/FILTER sobre VENDAS_STG!C:C
+B2 = IF(A2:A1000="","",IFERROR(VLOOKUP(A2:A1000,{VENDAS_STG!C:C,VENDAS_STG!D:D},2,FALSE),""))
+D2 = IF(A2:A1000="","",SUMIF(VENDAS_STG!C:C,A2:A1000,VENDAS_STG!E:E))
+H2 = IF(A2:A1000="","",SUMIF(COMPRAS_STG!E:E,A2:A1000,COMPRAS_STG!I:I))
+J2 = IF(A2:A1000="","",IFERROR(I2:I1000/H2:H1000,0))
+L2 = IF(A2:A1000="","",IFERROR(K2:K1000/G2:G1000,0))
+M2 = IF(A2:A1000="","",IF(H2:H1000>0,"OK","SEM_MATCH"))
+```
+
+### Observação
+
+`SKU_RESUMO` confirma papel central no cruzamento compras x vendas e na identificação de SKU sem compra correspondente.
 
 ---
 
-## 9. Classificação esperada das divergências
+## 6. Camadas analíticas adicionais encontradas
 
-| Tipo | Definição |
-|---|---|
-| Divergência baixa | diferença visual ou sem impacto operacional |
-| Divergência média | diferença estrutural localizada |
-| Divergência alta | diferença que afeta pipeline ou validação |
-| Divergência crítica | diferença que afeta financeiro, margem ou PAINEL |
+## 6.1 ANALISE_SKU_SEMANAL
 
----
+A aba usa fórmulas com:
 
-## 10. Decisão atual
+- `MAP`;
+- `LAMBDA`;
+- `SUMIFS`;
+- `IFS`;
+- semana operacional;
+- status operacional.
 
-Esta frente está aberta como preparação de auditoria.
+Exemplos de regras encontradas:
 
-Ainda não há evidência suficiente para afirmar se a planilha real diverge ou não do template.
+```text
+SEM_COMPRA
+MARGEM_NEGATIVA
+RISCO_RUPTURA
+EXCESSO_COMPRA
+VENDEU_MAIS_QUE_COMPROU
+OK
+```
 
----
+### Impacto
 
-## 11. Próximo passo recomendado
+Essa aba representa uma camada de análise operacional semanal real, não prevista na arquitetura inicial.
 
-Coletar as fórmulas reais da planilha operacional e atualizar este documento com:
+## 6.2 ANALISE_SKU_GERAL
 
-- evidências;
-- divergências;
-- impacto;
+A aba consolida análise geral a partir de `SKU_RESUMO`, com regras como:
+
+```text
+RISCO_RUPTURA
+EXCESSO_COMPRA
+MARGEM_NEGATIVA
+VENDEU_MAIS_QUE_COMPROU
+OK
+```
+
+### Impacto
+
+Essa aba confirma a existência de uma camada analítica agregada para risco operacional e financeiro.
+
+## 6.3 AUDITORIA_OPERACIONAL
+
+A aba filtra riscos originados na análise semanal e classifica criticidade/status.
+
+Foram encontrados conceitos como:
+
 - criticidade;
-- decisão técnica.
+- status;
+- semana;
+- código;
+- produto;
+- recomendação;
+- situação aberta.
+
+### Impacto
+
+Existe uma camada embrionária de governança operacional dentro da própria planilha.
+
+## 6.4 CALENDARIO_OPERACIONAL
+
+A aba utiliza datas de compras para montar calendário operacional e identificar possíveis faltas.
+
+Exemplos encontrados:
+
+```text
+SEQUENCE(MAX(COMPRAS_STG!A:A)-MIN(COMPRAS_STG!A:A)+1,1,MIN(COMPRAS_STG!A:A),1)
+COUNTIF(COMPRAS_STG!A:A,D2:D1000)
+FALTA_COMPRA
+OK
+```
+
+### Impacto
+
+A planilha real já contém lógica temporal/operacional além do cruzamento simples compra x venda.
+
+---
+
+## 7. PAINEL e VALIDACOES
+
+## 7.1 PAINEL
+
+Fórmulas encontradas:
+
+```text
+B2 = COUNTA(SKU_RESUMO!A2:A1000)
+B3 = COUNTIF(SKU_RESUMO!M2:M1000,"OK")
+B5 = IFERROR(COUNTIF(SKU_RESUMO!M2:M1000,"OK")/COUNTA(SKU_RESUMO!A2:A1000),0)
+```
+
+### Observação
+
+O `PAINEL` é simples e depende fortemente da integridade de `SKU_RESUMO`.
+
+## 7.2 VALIDACOES
+
+Fórmulas encontradas:
+
+```text
+B2 = IFERROR(COUNTIF(VENDAS_STG!C2:C1000,"")/COUNTA(VENDAS_STG!B2:B1000),0)
+B3 = IFERROR(COUNTIF(COMPRAS_STG!E2:E1000,"")/COUNTA(COMPRAS_STG!D2:D1000),0)
+B4 = COUNTIFS(SKU_RESUMO!M2:M1000,"OK",SKU_RESUMO!J2:J1000,0)
+B5 = COUNTIF(SKU_RESUMO!G2:G1000,0)
+```
+
+### Observação
+
+`VALIDACOES` já contém governança básica, mas ainda depende de métricas simples e não bloqueantes.
+
+---
+
+## 8. Divergências relevantes em relação à arquitetura inicial
+
+| Divergência | Impacto | Criticidade |
+|---|---|---|
+| Novas abas analíticas não documentadas inicialmente | arquitetura real maior que o template | ALTA |
+| Existência de auditoria operacional interna | governança operacional já iniciada | ALTA |
+| Calendário operacional presente | regra temporal real | MÉDIA/ALTA |
+| Ranges parcialmente limitados | melhora estrutural | POSITIVO |
+| Funções Google convertidas como DUMMYFUNCTION no Excel | limita leitura externa | MÉDIA |
+| PAINEL mais simples que o esperado | lógica pesada está antes do painel | POSITIVO |
+| VALIDACOES existente porém não bloqueante | risco ainda pode propagar | ALTA |
+
+---
+
+## 9. Riscos confirmados
+
+- `IFERROR(...;0)` ainda pode mascarar falhas financeiras;
+- SKU sem match continua crítico;
+- custo zerado pode gerar margem artificial;
+- validações não bloqueiam análise gerencial;
+- parte da lógica operacional está distribuída em abas analíticas;
+- exportação Excel não preserva perfeitamente todas as funções Google Sheets.
+
+---
+
+## 10. Decisão técnica
+
+A planilha real deve ser tratada como versão operacional viva e mais avançada que o template inicial.
+
+A arquitetura oficial precisa ser atualizada para incluir:
+
+- `ANALISE_SKU_SEMANAL`;
+- `ANALISE_SKU_GERAL`;
+- `AUDITORIA_OPERACIONAL`;
+- `CALENDARIO_OPERACIONAL`;
+- camada de análise semanal;
+- camada de auditoria operacional;
+- camada de calendário operacional;
+- validações reais existentes.
+
+---
+
+## 11. Próximos passos recomendados
+
+1. atualizar o mapa arquitetural operacional v2;
+2. revisar matriz de riscos para incluir abas analíticas reais;
+3. mapear regras das abas `ANALISE_SKU_*`;
+4. transformar `AUDITORIA_OPERACIONAL` em referência de governança;
+5. avaliar quais validações devem virar bloqueantes futuramente.
 
 ---
 
 ## 12. Status
 
-EM ANÁLISE
+CONCLUÍDO
