@@ -127,7 +127,7 @@
       top: 0;
       z-index: 20;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 80px 88px;
+      grid-template-columns: minmax(0, 1fr) 64px 72px 36px;
       gap: 4px;
       background: var(--sticky);
       border-radius: 12px 12px 0 0;
@@ -154,11 +154,11 @@
 
     .produto-card {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 80px 88px;
+      grid-template-columns: minmax(0, 1fr) 64px 72px 36px;
       gap: 4px;
       align-items: center;
       border-bottom: 1px solid var(--border);
-      padding: 8px 6px;
+      padding: 6px;
       background: #fff;
     }
 
@@ -198,18 +198,35 @@
 
     .produto-card input,
     .review-row input {
-      padding: 10px 4px;
+      padding: 8px 4px;
       font-size: 17px;
       border-radius: 8px;
       text-align: center;
       font-weight: bold;
     }
 
-    .produto-card input[readonly] {
+    .produto-card input[readonly],
+    .review-row input[readonly] {
       background-color: #f3f4f6;
       color: #374151;
       cursor: default;
       border: 1px solid var(--border);
+    }
+
+    .dica-quantidade {
+      display: none;
+      margin: 6px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: #eef8f1;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .dica-quantidade.visivel {
+      display: block;
     }
 
     #dataConferencia {
@@ -324,8 +341,10 @@
       background: var(--warning-bg);
       color: var(--warning-text);
       border-radius: 10px;
-      padding: 8px;
-      font-size: 13px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
       margin-bottom: 10px;
       line-height: 1.35;
     }
@@ -366,7 +385,11 @@
       }
 
       .produto-header,
-      .produto-card,
+      .produto-card {
+        grid-template-columns: minmax(0, 1fr) 58px 66px 34px;
+        gap: 3px;
+      }
+
       .review-header,
       .review-row {
         grid-template-columns: minmax(0, 1fr) 74px 80px;
@@ -380,7 +403,7 @@
       .produto-card input,
       .review-row input {
         font-size: 16px;
-        padding: 10px 3px;
+        padding: 8px 3px;
       }
 
       .review-produto {
@@ -391,16 +414,17 @@
     /* Estilos do Botão de Pesagem Fracionada */
     .btn-fracionar {
       width: 100%;
+      min-width: 34px;
+      height: 34px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
       background: #e8f5e9;
       color: var(--primary-dark);
       border: 1px solid #a5d6a7;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 12px;
+      border-radius: 8px;
+      padding: 0;
+      font-size: 22px;
       font-weight: bold;
       cursor: pointer;
       margin-top: 0px;
@@ -413,7 +437,6 @@
     }
 
     .fracionar-container {
-      grid-column: 2 / 4;
       display: flex;
       padding-top: 0px;
       margin-top: 0px;
@@ -975,6 +998,7 @@
       }
       
       atualizarResumoModal(unidade);
+
     }
 
     function atualizarResumoModal(unidade) {
@@ -1149,6 +1173,30 @@
       document.body.appendChild(script);
     }
 
+    function formatarDataBR(dataISO) {
+      if (!dataISO) return '-';
+
+      const partes = dataISO.split('-');
+      if (partes.length !== 3) return dataISO;
+
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    let dicaQuantidadeTimer = null;
+
+    function mostrarDicaQuantidade() {
+      const dica = document.getElementById('dicaQuantidade');
+      if (!dica) return;
+
+      dica.textContent = 'Para adicionar a quantidade, clique no botão +.';
+      dica.classList.add('visivel');
+
+      clearTimeout(dicaQuantidadeTimer);
+      dicaQuantidadeTimer = setTimeout(() => {
+        dica.classList.remove('visivel');
+      }, 2500);
+    }
+
     function renderizarProdutos(lista) {
 
       produtos = lista;
@@ -1170,6 +1218,7 @@
           <div>Produto</div>
           <div>Caixas</div>
           <div>Qtd/Peso</div>
+          <div></div>
         </div>
 
         <div class="ajuda">
@@ -1177,6 +1226,8 @@
           informe kg quando for produto pesado,
           ou unidade/maço/bandeja.
         </div>
+
+        <div id="dicaQuantidade" class="dica-quantidade" aria-live="polite"></div>
 
         ${lista.map((produto, index) => {
 
@@ -1212,6 +1263,7 @@
                 placeholder="0"
                 readonly
                 tabindex="-1"
+                onclick="mostrarDicaQuantidade()"
                 aria-label="Caixas lançadas">
 
               <input
@@ -1222,11 +1274,17 @@
                 placeholder="${escapeHtml(unidade)}"
                 readonly
                 tabindex="-1"
+                onclick="mostrarDicaQuantidade()"
                 aria-label="Quantidade ou peso lançado">
 
               <div class="fracionar-container">
-                <button type="button" class="btn-fracionar" onclick="abrirModalPesagem(${index})">
-                  ➕ Lançar peso/qtde
+                <button
+                  type="button"
+                  class="btn-fracionar"
+                  onclick="abrirModalPesagem(${index})"
+                  aria-label="Lançar peso ou quantidade para ${escapeHtml(produto.produto)}"
+                  title="Lançar peso/qtde">
+                  +
                 </button>
               </div>
 
@@ -1335,7 +1393,7 @@
 
           <p>
             <strong>Data:</strong>
-            ${escapeHtml(payload.dataConferencia)}
+            ${escapeHtml(formatarDataBR(payload.dataConferencia))}
           </p>
 
           <p>
@@ -1344,7 +1402,7 @@
           </p>
 
           <p>
-            <strong>Itens:</strong>
+            <strong>Itens conferidos:</strong>
             ${payload.itens.length}
           </p>
 
@@ -1386,12 +1444,16 @@
                 <input
                   type="number"
                   id="rev_caixas_${item.originalIndex}"
-                  value="${item.caixas}">
+                  value="${item.caixas}"
+                  readonly
+                  tabindex="-1">
 
                 <input
                   type="number"
                   id="rev_qtdpeso_${item.originalIndex}"
-                  value="${item.qtdPeso}">
+                  value="${item.qtdPeso}"
+                  readonly
+                  tabindex="-1">
 
               </div>
 
@@ -1427,6 +1489,7 @@
       window.scrollTo(0, 0);
     }
 
+    
     function confirmarEnviar() {
 
       if (IS_LOCAL) {
@@ -1459,68 +1522,8 @@
         statusRevisao.style.display = 'none';
       }
 
-      // Sincronizar e atualizar com qualquer edição feita na tela de revisão
-      const itensAtualizados =
-        ultimoPayload.itens
-          .map((item) => {
-            const cxVal = document.getElementById(`rev_caixas_${item.originalIndex}`).value;
-            const qpVal = document.getElementById(`rev_qtdpeso_${item.originalIndex}`).value;
-            
-            const cx = normalizarNumero(cxVal);
-            const qp = normalizarNumero(qpVal);
-
-            // Sincronizar de volta com os inputs principais
-            const inputCaixas = document.getElementById(`caixas_${item.originalIndex}`);
-            const inputQtdPeso = document.getElementById(`qtdpeso_${item.originalIndex}`);
-            if (inputCaixas) inputCaixas.value = cxVal;
-            if (inputQtdPeso) inputQtdPeso.value = qpVal;
-
-            // Sincronizar de volta com o estado interno do produto
-            const index = item.originalIndex;
-            const produto = produtos[index];
-            const unidade = (produto.unidade || 'kg').trim().toLowerCase();
-            const isKg = unidade === 'kg';
-            
-            if (!isKg) {
-              const cxInt = parseInt(cxVal) || 0;
-              const qpInt = parseInt(qpVal) || 0;
-              produto.caixasTotais = cxInt > 0 ? cxInt : '';
-              produto.itensPorCaixa = cxInt > 0 ? Math.round(qpInt / cxInt) : '';
-              if (cxInt > 0 && produto.itensPorCaixa > 0) {
-                produto.pesosCaixas = Array(cxInt).fill(produto.itensPorCaixa);
-              } else {
-                produto.pesosCaixas = [];
-              }
-            } else {
-              const cxInt = parseInt(cxVal) || 0;
-              if (cxInt === 0) {
-                produto.pesosCaixas = [];
-              } else if (produto.pesosCaixas && cxInt !== produto.pesosCaixas.length) {
-                if (cxInt < produto.pesosCaixas.length) {
-                  produto.pesosCaixas = produto.pesosCaixas.slice(0, cxInt);
-                } else {
-                  const diff = cxInt - produto.pesosCaixas.length;
-                  const avg = cxInt > 0 ? (qp / cxInt) : 0;
-                  for (let i = 0; i < diff; i++) {
-                    produto.pesosCaixas.push(avg);
-                  }
-                }
-              }
-            }
-
-            return {
-              ...item,
-              caixas: cx,
-              qtdPeso: qp,
-              pesosCaixas: produto.pesosCaixas
-            };
-          })
-          .filter(item =>
-            Number(item.caixas) > 0 ||
-            Number(item.qtdPeso) > 0
-          );
-
-      ultimoPayload.itens = itensAtualizados;
+      // A revisão é apenas conferência visual.
+      // Para alterar caixas ou quantidade/peso, o usuário deve voltar e usar o botão + na tela principal.
 
       const btn =
         document.getElementById('btnConfirmar');
@@ -1647,54 +1650,6 @@
     }
 
     function voltarParaEdicao() {
-      // Salvar qualquer alteração feita nos inputs da revisão de volta para a tela de edição
-      if (ultimoPayload && ultimoPayload.itens) {
-        ultimoPayload.itens.forEach(item => {
-          const cxVal = document.getElementById(`rev_caixas_${item.originalIndex}`).value;
-          const qpVal = document.getElementById(`rev_qtdpeso_${item.originalIndex}`).value;
-          
-          const inputCaixas = document.getElementById(`caixas_${item.originalIndex}`);
-          const inputQtdPeso = document.getElementById(`qtdpeso_${item.originalIndex}`);
-          
-          if (inputCaixas) inputCaixas.value = cxVal;
-          if (inputQtdPeso) inputQtdPeso.value = qpVal;
-
-          // Sincronizar de volta com o estado interno do produto
-          const index = item.originalIndex;
-          const produto = produtos[index];
-          const unidade = (produto.unidade || 'kg').trim().toLowerCase();
-          const isKg = unidade === 'kg';
-          
-          if (!isKg) {
-            const cxInt = parseInt(cxVal) || 0;
-            const qpInt = parseInt(qpVal) || 0;
-            produto.caixasTotais = cxInt > 0 ? cxInt : '';
-            produto.itensPorCaixa = cxInt > 0 ? Math.round(qpInt / cxInt) : '';
-            if (cxInt > 0 && produto.itensPorCaixa > 0) {
-              produto.pesosCaixas = Array(cxInt).fill(produto.itensPorCaixa);
-            } else {
-              produto.pesosCaixas = [];
-            }
-          } else {
-            const cxInt = parseInt(cxVal) || 0;
-            const qpInt = parseFloat(qpVal) || 0;
-            if (cxInt === 0) {
-              produto.pesosCaixas = [];
-            } else if (produto.pesosCaixas && cxInt !== produto.pesosCaixas.length) {
-              if (cxInt < produto.pesosCaixas.length) {
-                produto.pesosCaixas = produto.pesosCaixas.slice(0, cxInt);
-              } else {
-                const diff = cxInt - produto.pesosCaixas.length;
-                const avg = cxInt > 0 ? (qpInt / cxInt) : 0;
-                for (let i = 0; i < diff; i++) {
-                  produto.pesosCaixas.push(avg);
-                }
-              }
-            }
-          }
-        });
-      }
-
       document.getElementById('telaRevisao').style.display = 'none';
       document.getElementById('telaEdicao').style.display = 'block';
       window.scrollTo(0, 0);
@@ -1758,7 +1713,7 @@
 
           <p>
             <strong>Data:</strong>
-            ${escapeHtml(resposta.dataConferencia)}
+            ${escapeHtml(formatarDataBR(resposta.dataConferencia))}
           </p>
 
           <p>
@@ -1767,7 +1722,7 @@
           </p>
 
           <p>
-            <strong>Itens:</strong>
+            <strong>Itens conferidos:</strong>
             ${resposta.totalItens}
           </p>
 
