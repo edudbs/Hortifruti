@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --app-bg: #f4f7f5;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --primary: #1f8f4d;
+      --primary-dark: #166c3a;
+      --border: #e5e7eb;
+      --danger: #b91c1c;
+      --sticky: #eef8f1;
+      --warning-bg: #fff7ed;
+      --warning-text: #9a3412;
+    }
+
+    html {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+      background: var(--bg);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      touch-action: manipulation;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 6px;
+      background: var(--app-bg);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--primary-dark);
+    }
+
+    .header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      max-width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 48px;
+      resize: vertical;
+    }
+
+    .field {
+      margin-bottom: 8px;
+    }
+
+    .produtos-card {
+      padding: 0;
+      overflow: visible;
+    }
+
+    .produto-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      gap: 4px;
+      background: var(--sticky);
+      border-radius: 12px 12px 0 0;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 6px;
+      font-size: 13px;
+      color: var(--primary-dark);
+      font-weight: bold;
+      align-items: center;
+    }
+
+    .produto-header div:nth-child(2),
+    .produto-header div:nth-child(3) {
+      text-align: center;
+    }
+
+    .ajuda {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      background: #fafafa;
+      line-height: 1.35;
+    }
+
+    .produto-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      gap: 4px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 6px;
+      background: #fff;
+    }
+
+    .produto-info {
+      min-width: 0;
+      padding-right: 2px;
+    }
+
+    .produto-nome {
+      font-weight: bold;
+      font-size: 18px;
+      line-height: 1.15;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .produto-codigo {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .produto-unidade {
+      font-size: 11px;
+      color: var(--primary-dark);
+      margin-top: 2px;
+      font-weight: bold;
+    }
+
+    .produto-card input,
+    .review-row input {
+      padding: 10px 4px;
+      font-size: 17px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .obs-compacta {
+      grid-column: 1 / -1;
+      display: none;
+      margin-top: 4px;
+    }
+
+    .produto-card:focus-within .obs-compacta {
+      display: block;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .btn-secondary {
+      background: #374151;
+    }
+
+    .btn-danger {
+      background: #b91c1c;
+    }
+
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .status {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .error {
+      display: block;
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--muted);
+      padding: 16px;
+    }
+
+    .review-box,
+    .resumo-box {
+      max-height: 55vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .review-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      gap: 4px;
+      padding: 8px 6px;
+      background: var(--sticky);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--primary-dark);
+      align-items: center;
+    }
+
+    .review-header div:nth-child(2),
+    .review-header div:nth-child(3) {
+      text-align: center;
+    }
+
+    .review-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      gap: 4px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 6px;
+      background: #fff;
+    }
+
+    .review-produto {
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+
+    .review-unidade {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .review-alerta {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .resumo-item {
+      border-bottom: 1px solid var(--border);
+      padding: 8px;
+      font-size: 15px;
+    }
+
+    .resumo-produto {
+      font-weight: bold;
+    }
+
+    .resumo-detalhes {
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .success-title {
+      color: #166534;
+      margin: 0 0 6px 0;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .small-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    @media (max-width: 390px) {
+      .container {
+        max-width: 100%;
+        padding: 4px;
+      }
+
+      .produto-header,
+      .produto-card,
+      .review-header,
+      .review-row {
+        grid-template-columns: minmax(0, 1fr) 62px 80px;
+        gap: 3px;
+      }
+
+      .produto-nome {
+        font-size: 17px;
+      }
+
+      .produto-card input,
+      .review-row input {
+        font-size: 16px;
+        padding: 10px 3px;
+      }
+
+      .review-produto {
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 340px) {
+      .produto-header,
+      .produto-card,
+      .review-header,
+      .review-row {
+        grid-template-columns: minmax(0, 1fr) 56px 72px;
+      }
+
+      .produto-nome {
+        font-size: 16px;
+      }
+
+      .produto-header,
+      .review-header {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="container">
+    <div class="header">
+      <h1>Conferência Hortifruti</h1>
+      <p>Informe caixas e quantidade/peso conferido.</p>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label for="dataConferencia">Data</label>
+        <input type="date" id="dataConferencia" required>
+      </div>
+
+      <div class="field">
+        <label for="usuario">Conferente</label>
+        <input type="text" id="usuario" placeholder="Nome">
+      </div>
+
+      <div class="field">
+        <label for="observacaoGeral">Observação geral</label>
+        <textarea id="observacaoGeral" placeholder="Opcional"></textarea>
+      </div>
+    </div>
+
+    <div id="listaProdutos" class="card produtos-card">
+      <div class="loading">Carregando produtos...</div>
+    </div>
+
+    <button class="btn" id="btnRevisar" onclick="revisarConferencia()">
+      Revisar conferência
+    </button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    let produtos = [];
+    let ultimoPayload = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('dataConferencia').value = new Date().toISOString().slice(0, 10);
+      carregarProdutos();
+    });
+
+    function carregarProdutos() {
+      google.script.run
+        .withSuccessHandler(renderizarProdutos)
+        .withFailureHandler(exibirErro)
+        .getProdutos();
+    }
+
+    function renderizarProdutos(lista) {
+      produtos = lista;
+
+      const container = document.getElementById('listaProdutos');
+
+      if (!lista || lista.length === 0) {
+        container.innerHTML = '<p>Nenhum produto ativo encontrado.</p>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="produto-header">
+          <div>Produto</div>
+          <div>Caixas</div>
+          <div>Qtd/Peso</div>
+        </div>
+
+        <div class="ajuda">
+          Em <strong>Qtd/Peso</strong>, informe kg quando for produto pesado, ou unidade/maço/bandeja quando for conferido por quantidade.
+        </div>
+
+        ${lista.map((produto, index) => {
+          const unidade = produto.unidade ? produto.unidade : 'kg/un';
+
+          return `
+            <div class="produto-card">
+              <div class="produto-info">
+                <div class="produto-nome">${escapeHtml(produto.produto)}</div>
+                <div class="produto-codigo">Cód. ${escapeHtml(produto.codigo)}</div>
+                <div class="produto-unidade">Qtd/Peso: ${escapeHtml(unidade)}</div>
+              </div>
+
+              <input
+                type="number"
+                min="0"
+                step="1"
+                id="caixas_${index}"
+                placeholder="0"
+                inputmode="numeric">
+
+              <input
+                type="number"
+                min="0"
+                step="0.001"
+                id="qtdpeso_${index}"
+                placeholder="${escapeHtml(unidade)}"
+                inputmode="decimal">
+
+              <div class="obs-compacta">
+                <input
+                  type="text"
+                  id="obs_${index}"
+                  placeholder="Observação opcional">
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function revisarConferencia() {
+      limparStatus();
+
+      const payload = montarPayload();
+
+      if (!payload.dataConferencia) {
+        exibirErro('Informe a data da conferência.');
+        return;
+      }
+
+      const preenchidos = payload.itens.filter(item => Number(item.caixas) > 0 || Number(item.qtdPeso) > 0);
+
+      if (preenchidos.length === 0) {
+        exibirErro('Preencha pelo menos um produto antes de revisar.');
+        return;
+      }
+
+      payload.itens = preenchidos;
+      ultimoPayload = payload;
+
+      mostrarTelaRevisao(payload);
+    }
+
+    function montarPayload() {
+      const dataConferencia = document.getElementById('dataConferencia').value;
+      const usuario = document.getElementById('usuario').value.trim();
+      const observacaoGeral = document.getElementById('observacaoGeral').value.trim();
+
+      const itens = produtos.map((produto, index) => ({
+        codigo: produto.codigo,
+        produto: produto.produto,
+        unidade: produto.unidade || '',
+        caixas: normalizarNumero(document.getElementById(`caixas_${index}`).value),
+        qtdPeso: normalizarNumero(document.getElementById(`qtdpeso_${index}`).value),
+        observacao: document.getElementById(`obs_${index}`).value.trim()
+      }));
+
+      return {
+        dataConferencia,
+        usuario,
+        observacaoGeral,
+        itens
+      };
+    }
+
+    function mostrarTelaRevisao(payload) {
+      const app = document.getElementById('app');
+
+      app.innerHTML = `
+        <div class="header">
+          <h1>Revisar conferência</h1>
+          <p>Confira os dados antes do envio final.</p>
+        </div>
+
+        <div class="card">
+          <p><strong>Data:</strong> ${escapeHtml(payload.dataConferencia)}</p>
+          <p><strong>Conferente:</strong> ${escapeHtml(payload.usuario || '-')}</p>
+          <p><strong>Itens preenchidos:</strong> ${payload.itens.length}</p>
+          <p class="small-text">Você pode corrigir caixas e quantidade/peso nesta tela.</p>
+        </div>
+
+        <div class="review-alerta">
+          Atenção: nada foi enviado ainda. Revise os valores e toque em <strong>Confirmar e enviar</strong>.
+        </div>
+
+        <div class="review-box">
+          <div class="review-header">
+            <div>Produto</div>
+            <div>Caixas</div>
+            <div>Qtd/Peso</div>
+          </div>
+
+          ${payload.itens.map((item, index) => {
+            const unidade = item.unidade ? item.unidade : 'kg/un';
+
+            return `
+              <div class="review-row">
+                <div>
+                  <div class="review-produto">${escapeHtml(item.produto)}</div>
+                  <div class="review-unidade">Qtd/Peso: ${escapeHtml(unidade)}</div>
+                </div>
+
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  id="rev_caixas_${index}"
+                  value="${item.caixas}"
+                  inputmode="numeric">
+
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  id="rev_qtdpeso_${index}"
+                  value="${item.qtdPeso}"
+                  inputmode="decimal">
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <button class="btn" id="btnConfirmar" onclick="confirmarEnviar()">
+          Confirmar e enviar
+        </button>
+
+        <button class="btn btn-secondary" onclick="voltarParaEdicao()">
+          Voltar e editar
+        </button>
+
+        <div id="status" class="status"></div>
+      `;
+
+      window.scrollTo(0, 0);
+    }
+
+    function confirmarEnviar() {
+      if (!ultimoPayload || !ultimoPayload.itens || ultimoPayload.itens.length === 0) {
+        exibirErro('Não há dados para enviar.');
+        return;
+      }
+
+      limparStatus();
+
+      const itensAtualizados = ultimoPayload.itens.map((item, index) => ({
+        ...item,
+        caixas: normalizarNumero(document.getElementById(`rev_caixas_${index}`).value),
+        qtdPeso: normalizarNumero(document.getElementById(`rev_qtdpeso_${index}`).value)
+      })).filter(item => Number(item.caixas) > 0 || Number(item.qtdPeso) > 0);
+
+      if (itensAtualizados.length === 0) {
+        exibirErro('Todos os itens ficaram zerados. Volte e edite a conferência.');
+        return;
+      }
+
+      ultimoPayload.itens = itensAtualizados;
+
+      const btn = document.getElementById('btnConfirmar');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      google.script.run
+        .withSuccessHandler(resposta => {
+          mostrarPaginaSucesso(resposta);
+        })
+        .withFailureHandler(erro => {
+          exibirErro(erro.message || erro);
+          btn.disabled = false;
+          btn.textContent = 'Confirmar e enviar';
+        })
+        .salvarConferencia(ultimoPayload);
+    }
+
+    function voltarParaEdicao() {
+      location.reload();
+    }
+
+    function mostrarPaginaSucesso(resposta) {
+      const app = document.getElementById('app');
+
+      const resumoItens = resposta.itens.map(item => {
+        const unidade = item.unidade ? item.unidade : 'kg/un';
+
+        return `
+          <div class="resumo-item">
+            <div class="resumo-produto">${escapeHtml(item.produto)}</div>
+            <div class="resumo-detalhes">
+              Caixas: ${item.caixas} | Qtd/Peso: ${item.qtdPeso} ${escapeHtml(unidade)}
+              ${item.observacao ? `<br>Obs.: ${escapeHtml(item.observacao)}` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      app.innerHTML = `
+        <div class="card">
+          <h1 class="success-title">Enviado com sucesso!</h1>
+          <p style="text-align:center;">Conferência registrada na planilha.</p>
+        </div>
+
+        <div class="card">
+          <h2 style="font-size:18px; margin-top:0;">Resumo do envio</h2>
+          <p><strong>Data:</strong> ${escapeHtml(resposta.dataConferencia)}</p>
+          <p><strong>Conferente:</strong> ${escapeHtml(resposta.usuario || '-')}</p>
+          <p><strong>Itens registrados:</strong> ${resposta.totalItens}</p>
+
+          <div class="resumo-box">
+            ${resumoItens}
+          </div>
+        </div>
+
+        <button class="btn" onclick="location.reload()">
+          Nova conferência
+        </button>
+      `;
+
+      window.scrollTo(0, 0);
+    }
+
+    function normalizarNumero(valor) {
+      if (!valor) return 0;
+      return Number(String(valor).replace(',', '.')) || 0;
+    }
+
+    function exibirErro(erro) {
+      const status = document.getElementById('status');
+      if (!status) {
+        alert(erro);
+        return;
+      }
+
+      status.className = 'status error';
+      status.textContent = erro;
+    }
+
+    function limparStatus() {
+      const status = document.getElementById('status');
+      if (!status) return;
+
+      status.className = 'status';
+      status.textContent = '';
+    }
+
+    function escapeHtml(valor) {
+      return String(valor ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
