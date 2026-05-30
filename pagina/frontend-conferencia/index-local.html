@@ -127,7 +127,7 @@
       top: 0;
       z-index: 20;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      grid-template-columns: minmax(0, 1fr) 80px 88px;
       gap: 4px;
       background: var(--sticky);
       border-radius: 12px 12px 0 0;
@@ -155,7 +155,7 @@
 
     .produto-card {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      grid-template-columns: minmax(0, 1fr) 80px 88px;
       gap: 4px;
       align-items: center;
       border-bottom: 1px solid var(--border);
@@ -184,8 +184,16 @@
 
     .produto-unidade {
       font-size: 11px;
-      color: var(--primary-dark);
       margin-top: 2px;
+    }
+
+    .unidade-legenda {
+      color: var(--muted);
+      font-weight: normal;
+    }
+
+    .unidade-valor {
+      color: var(--primary-dark);
       font-weight: bold;
     }
 
@@ -265,7 +273,7 @@
       top: 0;
       z-index: 10;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      grid-template-columns: minmax(0, 1fr) 80px 88px;
       gap: 4px;
       padding: 8px 6px;
       background: var(--sticky);
@@ -278,7 +286,7 @@
 
     .review-row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 68px 88px;
+      grid-template-columns: minmax(0, 1fr) 80px 88px;
       gap: 4px;
       align-items: center;
       border-bottom: 1px solid var(--border);
@@ -348,7 +356,7 @@
       .produto-card,
       .review-header,
       .review-row {
-        grid-template-columns: minmax(0, 1fr) 62px 80px;
+        grid-template-columns: minmax(0, 1fr) 74px 80px;
         gap: 3px;
       }
 
@@ -704,42 +712,123 @@
     let envioEmAndamento = false;
     let modalIndexAtual = null;
 
-    // Funções de Controle da Pesagem Fracionada
+    // Funções de Controle da Pesagem Fracionada / Cálculo por Unidade
     function abrirModalPesagem(index) {
       modalIndexAtual = index;
       const produto = produtos[index];
-      
-      if (!produto.pesosCaixas) {
-        produto.pesosCaixas = [];
-      }
-
-      const pesos = [...produto.pesosCaixas];
-      if (pesos.length === 0) {
-        pesos.push('');
-      }
+      const unidade = (produto.unidade || 'kg').trim().toLowerCase();
+      const isKg = unidade === 'kg';
 
       document.getElementById('modalProdutoNome').textContent = 
-        `Pesagem Individual: ${produto.produto}`;
+        isKg ? `Pesagem Individual: ${produto.produto}` : `Cálculo de Unidades: ${produto.produto}`;
       
-      document.getElementById('btnAddCaixaModal').onclick = () => {
-        adicionarCaixaNoModal(produto.unidade || 'kg');
-      };
-      
-      document.getElementById('btnSalvarModal').onclick = () => {
-        confirmarPesagem();
-      };
+      const listaPesosContainer = document.getElementById('modalListaPesos');
+      const btnAddCaixa = document.getElementById('btnAddCaixaModal');
+      const camposUnitarioContainer = document.getElementById('modalCamposUnitario');
 
-      renderizarLinhasModal(pesos, produto.unidade || 'kg');
-      
-      document.getElementById('modalPesagem').style.display = 'flex';
-      
-      const primeiroInput = document.querySelector('.peso-input');
-      if (primeiroInput) {
-        primeiroInput.focus();
-        primeiroInput.select();
+      if (isKg) {
+        listaPesosContainer.style.display = 'block';
+        btnAddCaixa.style.display = 'flex';
+        if (camposUnitarioContainer) camposUnitarioContainer.style.display = 'none';
+
+        if (!produto.pesosCaixas) {
+          produto.pesosCaixas = [];
+        }
+
+        const pesos = [...produto.pesosCaixas];
+        if (pesos.length === 0) {
+          pesos.push('');
+        }
+
+        document.getElementById('btnAddCaixaModal').onclick = () => {
+          adicionarCaixaNoModal(produto.unidade || 'kg');
+        };
+        
+        document.getElementById('btnSalvarModal').onclick = () => {
+          confirmarPesagem();
+        };
+
+        renderizarLinhasModal(pesos, produto.unidade || 'kg');
+        
+        document.getElementById('modalPesagem').style.display = 'flex';
+        
+        const primeiroInput = document.querySelector('.peso-input');
+        if (primeiroInput) {
+          primeiroInput.focus();
+          primeiroInput.select();
+        }
+        
+        atualizarResumoModal(produto.unidade || 'kg');
+      } else {
+        // Produtos unitários
+        listaPesosContainer.style.display = 'none';
+        btnAddCaixa.style.display = 'none';
+        if (camposUnitarioContainer) camposUnitarioContainer.style.display = 'block';
+
+        const inputCaixasTotais = document.getElementById('modalInputCaixasTotais');
+        const inputItensPorCaixa = document.getElementById('modalInputItensPorCaixa');
+
+        // Sincronizar caso o usuário já tenha digitado na tela principal
+        const mainCaixasVal = document.getElementById(`caixas_${index}`).value;
+        const mainQtdPesoVal = document.getElementById(`qtdpeso_${index}`).value;
+        const mainCaixas = mainCaixasVal ? parseInt(mainCaixasVal) : 0;
+        const mainQtd = mainQtdPesoVal ? parseInt(mainQtdPesoVal) : 0;
+
+        let caixasTotais = produto.caixasTotais;
+        let itensPorCaixa = produto.itensPorCaixa;
+
+        if (mainCaixas > 0 && mainQtd > 0) {
+          if (mainCaixas !== produto.caixasTotais || mainQtd !== (produto.caixasTotais * produto.itensPorCaixa)) {
+            caixasTotais = mainCaixas;
+            itensPorCaixa = Math.round(mainQtd / mainCaixas);
+          }
+        } else if (mainCaixas > 0 && mainQtd === 0) {
+          caixasTotais = mainCaixas;
+          itensPorCaixa = '';
+        } else if (mainCaixas === 0 && mainQtd > 0) {
+          caixasTotais = '';
+          itensPorCaixa = mainQtd;
+        }
+
+        inputCaixasTotais.value = caixasTotais !== undefined ? caixasTotais : '';
+        inputItensPorCaixa.value = itensPorCaixa !== undefined ? itensPorCaixa : '';
+
+        const atualizarResumoUnitario = () => {
+          const cx = parseInt(inputCaixasTotais.value) || 0;
+          const itens = parseInt(inputItensPorCaixa.value) || 0;
+          const totalItens = cx * itens;
+          
+          const resumoDiv = document.getElementById('modalResumoTexto');
+          resumoDiv.textContent = `Total: ${cx} caixa(s) | ${totalItens} ${produto.unidade || 'un'}`;
+        };
+
+        inputCaixasTotais.oninput = atualizarResumoUnitario;
+        inputItensPorCaixa.oninput = atualizarResumoUnitario;
+
+        inputCaixasTotais.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            inputItensPorCaixa.focus();
+            inputItensPorCaixa.select();
+          }
+        };
+        inputItensPorCaixa.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmarPesagem();
+          }
+        };
+
+        document.getElementById('btnSalvarModal').onclick = () => {
+          confirmarPesagem();
+        };
+
+        document.getElementById('modalPesagem').style.display = 'flex';
+        inputCaixasTotais.focus();
+        inputCaixasTotais.select();
+
+        atualizarResumoUnitario();
       }
-      
-      atualizarResumoModal(produto.unidade || 'kg');
     }
 
     function renderizarLinhasModal(pesos, unidade) {
@@ -866,33 +955,63 @@
     function confirmarPesagem() {
       if (modalIndexAtual === null) return;
       
-      const inputs = document.querySelectorAll('.peso-input');
-      const pesos = [];
-      let totalCaixas = 0;
-      let totalPeso = 0;
-      
-      inputs.forEach(input => {
-        const valStr = input.value.trim();
-        if (valStr !== '') {
-          const val = Number(valStr.replace(',', '.')) || 0;
-          pesos.push(val);
-          if (val > 0) {
-            totalCaixas++;
-            totalPeso += val;
-          }
-        }
-      });
-      
-      produtos[modalIndexAtual].pesosCaixas = pesos;
-      
+      const produto = produtos[modalIndexAtual];
+      const unidade = (produto.unidade || 'kg').trim().toLowerCase();
+      const isKg = unidade === 'kg';
+
       const inputCaixas = document.getElementById(`caixas_${modalIndexAtual}`);
       const inputQtdPeso = document.getElementById(`qtdpeso_${modalIndexAtual}`);
-      
-      if (inputCaixas) {
-        inputCaixas.value = totalCaixas > 0 ? totalCaixas : '';
-      }
-      if (inputQtdPeso) {
-        inputQtdPeso.value = totalPeso > 0 ? Number(totalPeso.toFixed(3)) : '';
+
+      if (isKg) {
+        const inputs = document.querySelectorAll('.peso-input');
+        const pesos = [];
+        let totalCaixas = 0;
+        let totalPeso = 0;
+        
+        inputs.forEach(input => {
+          const valStr = input.value.trim();
+          if (valStr !== '') {
+            const val = Number(valStr.replace(',', '.')) || 0;
+            pesos.push(val);
+            if (val > 0) {
+              totalCaixas++;
+              totalPeso += val;
+            }
+          }
+        });
+        
+        produto.pesosCaixas = pesos;
+        
+        if (inputCaixas) {
+          inputCaixas.value = totalCaixas > 0 ? totalCaixas : '';
+        }
+        if (inputQtdPeso) {
+          inputQtdPeso.value = totalPeso > 0 ? Number(totalPeso.toFixed(3)) : '';
+        }
+      } else {
+        const inputCaixasTotais = document.getElementById('modalInputCaixasTotais');
+        const inputItensPorCaixa = document.getElementById('modalInputItensPorCaixa');
+
+        const caixasTotais = parseInt(inputCaixasTotais.value) || 0;
+        const itensPorCaixa = parseInt(inputItensPorCaixa.value) || 0;
+        const totalItens = caixasTotais * itensPorCaixa;
+
+        produto.caixasTotais = caixasTotais > 0 ? caixasTotais : '';
+        produto.itensPorCaixa = itensPorCaixa > 0 ? itensPorCaixa : '';
+
+        // Sincronizar array de pesos correspondente para manter retrocompatibilidade com relatórios
+        if (caixasTotais > 0 && itensPorCaixa > 0) {
+          produto.pesosCaixas = Array(caixasTotais).fill(itensPorCaixa);
+        } else {
+          produto.pesosCaixas = [];
+        }
+
+        if (inputCaixas) {
+          inputCaixas.value = caixasTotais > 0 ? caixasTotais : '';
+        }
+        if (inputQtdPeso) {
+          inputQtdPeso.value = totalItens > 0 ? totalItens : '';
+        }
       }
       
       fecharModalPesagem();
@@ -1028,8 +1147,8 @@
                 </div>
 
                 <div class="produto-unidade">
-                  Qtd/Peso:
-                  ${escapeHtml(unidade)}
+                  <span class="unidade-legenda">Qtd/Peso:</span>
+                  <span class="unidade-valor">${escapeHtml(unidade)}</span>
                 </div>
 
               </div>
@@ -1587,6 +1706,17 @@
         <button type="button" class="btn-add-caixa" id="btnAddCaixaModal">
           ➕ Adicionar Caixa
         </button>
+
+        <div id="modalCamposUnitario" style="display: none;">
+          <div class="field">
+            <label for="modalInputCaixasTotais">Quantidade de Caixas Totais</label>
+            <input type="number" id="modalInputCaixasTotais" min="0" step="1" placeholder="0">
+          </div>
+          <div class="field" style="margin-top: 12px;">
+            <label for="modalInputItensPorCaixa">Quantidade de Itens por Caixa</label>
+            <input type="number" id="modalInputItensPorCaixa" min="0" step="1" placeholder="0">
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <div class="modal-resumo" id="modalResumoTexto">
