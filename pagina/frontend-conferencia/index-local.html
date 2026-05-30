@@ -208,8 +208,15 @@
     .produto-card input[readonly] {
       background-color: #f3f4f6;
       color: #374151;
-      cursor: pointer;
+      cursor: default;
       border: 1px solid var(--border);
+    }
+
+    #dataConferencia {
+      font-family: Arial, sans-serif;
+      font-size: 17px;
+      font-weight: bold;
+      color: #374151;
     }
 
     .obs-compacta {
@@ -383,8 +390,10 @@
 
     /* Estilos do Botão de Pesagem Fracionada */
     .btn-fracionar {
+      width: 100%;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
       background: #e8f5e9;
       color: var(--primary-dark);
@@ -404,9 +413,8 @@
     }
 
     .fracionar-container {
-      grid-column: 1 / -1;
+      grid-column: 2 / 4;
       display: flex;
-      justify-content: flex-end;
       padding-top: 0px;
       margin-top: 0px;
     }
@@ -465,6 +473,22 @@
       color: var(--primary-dark);
       word-break: break-word;
       padding-right: 8px;
+    }
+
+    .modal-product-subtitle {
+      width: 100%;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 17px;
+      line-height: 1.25;
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .modal-unitario-label {
+      font-size: 15px;
+      margin-bottom: 6px;
     }
 
     .modal-close {
@@ -1187,8 +1211,8 @@
                 id="caixas_${index}"
                 placeholder="0"
                 readonly
-                onclick="abrirModalPesagem(${index})"
-                style="cursor: pointer;">
+                tabindex="-1"
+                aria-label="Caixas lançadas">
 
               <input
                 type="number"
@@ -1197,8 +1221,8 @@
                 id="qtdpeso_${index}"
                 placeholder="${escapeHtml(unidade)}"
                 readonly
-                onclick="abrirModalPesagem(${index})"
-                style="cursor: pointer;">
+                tabindex="-1"
+                aria-label="Quantidade ou peso lançado">
 
               <div class="fracionar-container">
                 <button type="button" class="btn-fracionar" onclick="abrirModalPesagem(${index})">
@@ -1833,7 +1857,7 @@
       <div class="modal-header" style="flex-direction: column; align-items: center; text-align: center; position: relative; width: 100%; border-bottom: 1px solid var(--border); padding: 14px 16px;">
         <button type="button" class="modal-close" onclick="fecharModalPesagem()" style="position: absolute; right: 16px; top: 12px;">&times;</button>
         <h3 id="modalTituloTipo" style="margin: 0; font-size: 16px; color: var(--primary-dark); font-weight: bold;">Lançamento de Itens Unitários</h3>
-        <div id="modalProdutoSubtitulo" style="margin-top: 4px; font-size: 14px; color: var(--text); font-weight: bold;">
+        <div id="modalProdutoSubtitulo" class="modal-product-subtitle">
           <!-- Nome e código do produto -->
         </div>
       </div>
@@ -1847,11 +1871,11 @@
 
         <div id="modalCamposUnitario" style="display: none;">
           <div class="field">
-            <label for="modalInputCaixasTotais">Total de caixas/sacos</label>
+            <label for="modalInputCaixasTotais" class="modal-unitario-label">Total de caixas/sacos</label>
             <input type="number" id="modalInputCaixasTotais" min="0" step="1" placeholder="0">
           </div>
           <div class="field" style="margin-top: 12px;">
-            <label for="modalInputItensPorCaixa">Itens por caixa</label>
+            <label for="modalInputItensPorCaixa" class="modal-unitario-label">Itens por caixa</label>
             <input type="number" id="modalInputItensPorCaixa" min="0" step="1" placeholder="0">
           </div>
         </div>
