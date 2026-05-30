@@ -139,8 +139,7 @@
       align-items: center;
     }
 
-    .produto-header div:nth-child(2),
-    .produto-header div:nth-child(3) {
+    .produto-header div {
       text-align: center;
     }
 
@@ -204,6 +203,13 @@
       border-radius: 8px;
       text-align: center;
       font-weight: bold;
+    }
+
+    .produto-card input[readonly] {
+      background-color: #f3f4f6;
+      color: #374151;
+      cursor: pointer;
+      border: 1px solid var(--border);
     }
 
     .obs-compacta {
@@ -380,30 +386,29 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      background: #f0fdf4;
-      color: #166534;
-      border: 1px dashed #bbf7d0;
+      background: #e8f5e9;
+      color: var(--primary-dark);
+      border: 1px solid #a5d6a7;
       border-radius: 6px;
-      padding: 5px 8px;
-      font-size: 11px;
+      padding: 6px 10px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 6px;
+      margin-top: 0px;
       transition: all 0.2s ease;
       touch-action: manipulation;
     }
     .btn-fracionar:hover {
-      background: #dcfce7;
-      border-color: #86efac;
+      background: #c8e6c9;
+      border-color: var(--primary);
     }
 
     .fracionar-container {
       grid-column: 1 / -1;
       display: flex;
       justify-content: flex-end;
-      padding-top: 2px;
-      margin-top: 2px;
-      border-top: 1px dashed var(--border);
+      padding-top: 0px;
+      margin-top: 0px;
     }
 
     /* Modal Overlay */
@@ -577,7 +582,7 @@
     .modal-resumo {
       text-align: center;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 16px;
       color: var(--primary-dark);
       margin-bottom: 12px;
       background: #eef8f1;
@@ -625,46 +630,51 @@
 
   <div id="app" class="container">
 
-    <div class="header">
-      <h1>Conferência Hortifruti</h1>
-      <p>Informe caixas e quantidade/peso conferido.</p>
+    <div id="telaEdicao">
+      <div class="header">
+        <h1>Conferência Hortifruti</h1>
+        <p>Informe caixas e quantidade/peso conferido.</p>
+      </div>
+
+      <div class="card">
+
+        <div class="field">
+          <label for="dataConferencia">Data</label>
+          <input type="date" id="dataConferencia" required>
+        </div>
+
+        <div class="field">
+          <label for="usuario">Conferente</label>
+          <input type="text" id="usuario" placeholder="Nome">
+        </div>
+
+        <div class="field">
+          <label for="observacaoGeral">Observação geral</label>
+          <textarea id="observacaoGeral" placeholder="Opcional"></textarea>
+        </div>
+
+      </div>
+
+      <div id="listaProdutos" class="card produtos-card">
+        <div class="loading">
+          Carregando produtos...
+        </div>
+      </div>
+
+      <button
+        class="btn"
+        id="btnRevisar"
+        onclick="revisarConferencia()">
+
+        Revisar conferência
+
+      </button>
+
+      <div id="status" class="status"></div>
     </div>
 
-    <div class="card">
-
-      <div class="field">
-        <label for="dataConferencia">Data</label>
-        <input type="date" id="dataConferencia" required>
-      </div>
-
-      <div class="field">
-        <label for="usuario">Conferente</label>
-        <input type="text" id="usuario" placeholder="Nome">
-      </div>
-
-      <div class="field">
-        <label for="observacaoGeral">Observação geral</label>
-        <textarea id="observacaoGeral" placeholder="Opcional"></textarea>
-      </div>
-
-    </div>
-
-    <div id="listaProdutos" class="card produtos-card">
-      <div class="loading">
-        Carregando produtos...
-      </div>
-    </div>
-
-    <button
-      class="btn"
-      id="btnRevisar"
-      onclick="revisarConferencia()">
-
-      Revisar conferência
-
-    </button>
-
-    <div id="status" class="status"></div>
+    <div id="telaRevisao" style="display: none;"></div>
+    <div id="telaSucesso" style="display: none;"></div>
 
   </div>
 
@@ -719,8 +729,21 @@
       const unidade = (produto.unidade || 'kg').trim().toLowerCase();
       const isKg = unidade === 'kg';
 
-      document.getElementById('modalProdutoNome').textContent = 
-        isKg ? `Pesagem Individual: ${produto.produto}` : `Cálculo de Unidades: ${produto.produto}`;
+      const tituloTipo = document.getElementById('modalTituloTipo');
+      const produtoSubtitulo = document.getElementById('modalProdutoSubtitulo');
+
+      if (isKg) {
+        tituloTipo.textContent = "Lançamento por Peso";
+      } else {
+        tituloTipo.textContent = "Lançamento de Itens Unitários";
+      }
+
+      produtoSubtitulo.innerHTML = `
+        ${escapeHtml(produto.produto)}
+        <span style="font-weight: normal; color: var(--muted); font-size: 12px; margin-left: 4px;">
+          (Cód. ${escapeHtml(produto.codigo)})
+        </span>
+      `;
       
       const listaPesosContainer = document.getElementById('modalListaPesos');
       const btnAddCaixa = document.getElementById('btnAddCaixaModal');
@@ -1019,8 +1042,12 @@
 
     document.addEventListener('DOMContentLoaded', () => {
 
-      document.getElementById('dataConferencia').value =
-        new Date().toISOString().slice(0, 10);
+      // Carregar data atual local no fuso horário do usuário
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      document.getElementById('dataConferencia').value = `${ano}-${mes}-${dia}`;
 
       prepararIframeEnvio();
 
@@ -1158,18 +1185,24 @@
                 min="0"
                 step="1"
                 id="caixas_${index}"
-                placeholder="0">
+                placeholder="0"
+                readonly
+                onclick="abrirModalPesagem(${index})"
+                style="cursor: pointer;">
 
               <input
                 type="number"
                 min="0"
                 step="0.001"
                 id="qtdpeso_${index}"
-                placeholder="${escapeHtml(unidade)}">
+                placeholder="${escapeHtml(unidade)}"
+                readonly
+                onclick="abrirModalPesagem(${index})"
+                style="cursor: pointer;">
 
               <div class="fracionar-container">
                 <button type="button" class="btn-fracionar" onclick="abrirModalPesagem(${index})">
-                  ⚖️ Adicionar qtde/peso caixas
+                  ➕ Lançar peso/qtde
                 </button>
               </div>
 
@@ -1250,7 +1283,8 @@
         pesosCaixas:
           produto.pesosCaixas || [],
 
-        observacao: ''
+        observacao: '',
+        originalIndex: index
 
       }));
 
@@ -1263,11 +1297,10 @@
     }
 
     function mostrarTelaRevisao(payload) {
+      const telaEdicao = document.getElementById('telaEdicao');
+      const telaRevisao = document.getElementById('telaRevisao');
 
-      const app =
-        document.getElementById('app');
-
-      app.innerHTML = `
+      telaRevisao.innerHTML = `
 
         <div class="header">
           <h1>Revisar conferência</h1>
@@ -1305,7 +1338,7 @@
             <div>Qtd/Peso</div>
           </div>
 
-          ${payload.itens.map((item, index) => {
+          ${payload.itens.map((item) => {
 
             const unidade =
               item.unidade || 'kg/un';
@@ -1328,12 +1361,12 @@
 
                 <input
                   type="number"
-                  id="rev_caixas_${index}"
+                  id="rev_caixas_${item.originalIndex}"
                   value="${item.caixas}">
 
                 <input
                   type="number"
-                  id="rev_qtdpeso_${index}"
+                  id="rev_qtdpeso_${item.originalIndex}"
                   value="${item.qtdPeso}">
 
               </div>
@@ -1360,9 +1393,12 @@
 
         </button>
 
-        <div id="status" class="status"></div>
+        <div id="statusRevisao" class="status"></div>
 
       `;
+
+      telaEdicao.style.display = 'none';
+      telaRevisao.style.display = 'block';
 
       window.scrollTo(0, 0);
     }
@@ -1391,23 +1427,70 @@
         return;
       }
 
-      limparStatus();
+      // Limpar status de erro de revisão se houver
+      const statusRevisao = document.getElementById('statusRevisao');
+      if (statusRevisao) {
+        statusRevisao.className = 'status';
+        statusRevisao.textContent = '';
+        statusRevisao.style.display = 'none';
+      }
 
+      // Sincronizar e atualizar com qualquer edição feita na tela de revisão
       const itensAtualizados =
         ultimoPayload.itens
-          .map((item, index) => ({
-            ...item,
+          .map((item) => {
+            const cxVal = document.getElementById(`rev_caixas_${item.originalIndex}`).value;
+            const qpVal = document.getElementById(`rev_qtdpeso_${item.originalIndex}`).value;
+            
+            const cx = normalizarNumero(cxVal);
+            const qp = normalizarNumero(qpVal);
 
-            caixas:
-              normalizarNumero(
-                document.getElementById(`rev_caixas_${index}`).value
-              ),
+            // Sincronizar de volta com os inputs principais
+            const inputCaixas = document.getElementById(`caixas_${item.originalIndex}`);
+            const inputQtdPeso = document.getElementById(`qtdpeso_${item.originalIndex}`);
+            if (inputCaixas) inputCaixas.value = cxVal;
+            if (inputQtdPeso) inputQtdPeso.value = qpVal;
 
-            qtdPeso:
-              normalizarNumero(
-                document.getElementById(`rev_qtdpeso_${index}`).value
-              )
-          }))
+            // Sincronizar de volta com o estado interno do produto
+            const index = item.originalIndex;
+            const produto = produtos[index];
+            const unidade = (produto.unidade || 'kg').trim().toLowerCase();
+            const isKg = unidade === 'kg';
+            
+            if (!isKg) {
+              const cxInt = parseInt(cxVal) || 0;
+              const qpInt = parseInt(qpVal) || 0;
+              produto.caixasTotais = cxInt > 0 ? cxInt : '';
+              produto.itensPorCaixa = cxInt > 0 ? Math.round(qpInt / cxInt) : '';
+              if (cxInt > 0 && produto.itensPorCaixa > 0) {
+                produto.pesosCaixas = Array(cxInt).fill(produto.itensPorCaixa);
+              } else {
+                produto.pesosCaixas = [];
+              }
+            } else {
+              const cxInt = parseInt(cxVal) || 0;
+              if (cxInt === 0) {
+                produto.pesosCaixas = [];
+              } else if (produto.pesosCaixas && cxInt !== produto.pesosCaixas.length) {
+                if (cxInt < produto.pesosCaixas.length) {
+                  produto.pesosCaixas = produto.pesosCaixas.slice(0, cxInt);
+                } else {
+                  const diff = cxInt - produto.pesosCaixas.length;
+                  const avg = cxInt > 0 ? (qp / cxInt) : 0;
+                  for (let i = 0; i < diff; i++) {
+                    produto.pesosCaixas.push(avg);
+                  }
+                }
+              }
+            }
+
+            return {
+              ...item,
+              caixas: cx,
+              qtdPeso: qp,
+              pesosCaixas: produto.pesosCaixas
+            };
+          })
           .filter(item =>
             Number(item.caixas) > 0 ||
             Number(item.qtdPeso) > 0
@@ -1540,13 +1623,62 @@
     }
 
     function voltarParaEdicao() {
-      location.reload();
+      // Salvar qualquer alteração feita nos inputs da revisão de volta para a tela de edição
+      if (ultimoPayload && ultimoPayload.itens) {
+        ultimoPayload.itens.forEach(item => {
+          const cxVal = document.getElementById(`rev_caixas_${item.originalIndex}`).value;
+          const qpVal = document.getElementById(`rev_qtdpeso_${item.originalIndex}`).value;
+          
+          const inputCaixas = document.getElementById(`caixas_${item.originalIndex}`);
+          const inputQtdPeso = document.getElementById(`qtdpeso_${item.originalIndex}`);
+          
+          if (inputCaixas) inputCaixas.value = cxVal;
+          if (inputQtdPeso) inputQtdPeso.value = qpVal;
+
+          // Sincronizar de volta com o estado interno do produto
+          const index = item.originalIndex;
+          const produto = produtos[index];
+          const unidade = (produto.unidade || 'kg').trim().toLowerCase();
+          const isKg = unidade === 'kg';
+          
+          if (!isKg) {
+            const cxInt = parseInt(cxVal) || 0;
+            const qpInt = parseInt(qpVal) || 0;
+            produto.caixasTotais = cxInt > 0 ? cxInt : '';
+            produto.itensPorCaixa = cxInt > 0 ? Math.round(qpInt / cxInt) : '';
+            if (cxInt > 0 && produto.itensPorCaixa > 0) {
+              produto.pesosCaixas = Array(cxInt).fill(produto.itensPorCaixa);
+            } else {
+              produto.pesosCaixas = [];
+            }
+          } else {
+            const cxInt = parseInt(cxVal) || 0;
+            const qpInt = parseFloat(qpVal) || 0;
+            if (cxInt === 0) {
+              produto.pesosCaixas = [];
+            } else if (produto.pesosCaixas && cxInt !== produto.pesosCaixas.length) {
+              if (cxInt < produto.pesosCaixas.length) {
+                produto.pesosCaixas = produto.pesosCaixas.slice(0, cxInt);
+              } else {
+                const diff = cxInt - produto.pesosCaixas.length;
+                const avg = cxInt > 0 ? (qpInt / cxInt) : 0;
+                for (let i = 0; i < diff; i++) {
+                  produto.pesosCaixas.push(avg);
+                }
+              }
+            }
+          }
+        });
+      }
+
+      document.getElementById('telaRevisao').style.display = 'none';
+      document.getElementById('telaEdicao').style.display = 'block';
+      window.scrollTo(0, 0);
     }
 
     function mostrarPaginaSucesso(resposta) {
-
-      const app =
-        document.getElementById('app');
+      const telaRevisao = document.getElementById('telaRevisao');
+      const telaSucesso = document.getElementById('telaSucesso');
 
       const resumoItens =
         resposta.itens.map(item => {
@@ -1580,7 +1712,7 @@
           `;
         }).join('');
 
-      app.innerHTML = `
+      telaSucesso.innerHTML = `
 
         <div class="card">
 
@@ -1630,6 +1762,9 @@
         </button>
 
       `;
+
+      telaRevisao.style.display = 'none';
+      telaSucesso.style.display = 'block';
 
       window.scrollTo(0, 0);
     }
@@ -1692,12 +1827,15 @@
 
   </script>
 
-  <!-- Modal de Pesagem Fracionada -->
+  <!-- Modal de Pesagem Fracionada / Lançamento Unitário -->
   <div id="modalPesagem" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalProdutoNome">Pesagem Individual</h3>
-        <button type="button" class="modal-close" onclick="fecharModalPesagem()">&times;</button>
+      <div class="modal-header" style="flex-direction: column; align-items: center; text-align: center; position: relative; width: 100%; border-bottom: 1px solid var(--border); padding: 14px 16px;">
+        <button type="button" class="modal-close" onclick="fecharModalPesagem()" style="position: absolute; right: 16px; top: 12px;">&times;</button>
+        <h3 id="modalTituloTipo" style="margin: 0; font-size: 16px; color: var(--primary-dark); font-weight: bold;">Lançamento de Itens Unitários</h3>
+        <div id="modalProdutoSubtitulo" style="margin-top: 4px; font-size: 14px; color: var(--text); font-weight: bold;">
+          <!-- Nome e código do produto -->
+        </div>
       </div>
       <div class="modal-body">
         <div id="modalListaPesos">
@@ -1709,11 +1847,11 @@
 
         <div id="modalCamposUnitario" style="display: none;">
           <div class="field">
-            <label for="modalInputCaixasTotais">Quantidade de Caixas Totais</label>
+            <label for="modalInputCaixasTotais">Total de caixas/sacos</label>
             <input type="number" id="modalInputCaixasTotais" min="0" step="1" placeholder="0">
           </div>
           <div class="field" style="margin-top: 12px;">
-            <label for="modalInputItensPorCaixa">Quantidade de Itens por Caixa</label>
+            <label for="modalInputItensPorCaixa">Itens por caixa</label>
             <input type="number" id="modalInputItensPorCaixa" min="0" step="1" placeholder="0">
           </div>
         </div>
