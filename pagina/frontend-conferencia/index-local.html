@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  
+
   <meta name="app-version" content="v0.9.8">
   <meta name="build-target" content="local-mock">
   <meta name="environment" content="development">
-  
-  <meta
-    name="viewport"
+
+  <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 
   <style>
@@ -86,7 +86,7 @@
       border-radius: 12px;
       padding: 8px;
       margin-bottom: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
     }
 
     label {
@@ -430,6 +430,7 @@
       transition: all 0.2s ease;
       touch-action: manipulation;
     }
+
     .btn-fracionar:hover {
       background: #c8e6c9;
       border-color: var(--primary);
@@ -467,7 +468,7 @@
       max-height: 85vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       animation: modalSlideUp 0.25s ease-out;
     }
 
@@ -476,6 +477,7 @@
         transform: translateY(15px);
         opacity: 0;
       }
+
       to {
         transform: translateY(0);
         opacity: 1;
@@ -526,8 +528,23 @@
 
     .modal-body {
       padding: 16px;
-      overflow-y: auto;
+      overflow: hidden;
       flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-lista-scroll {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 38vh;
+      padding-right: 2px;
+    }
+
+    .modal-add-fixo {
+      flex-shrink: 0;
+      padding-top: 8px;
+      background: #ffffff;
     }
 
     #modalListaPesos {
@@ -543,8 +560,15 @@
     }
 
     @keyframes rowFadeIn {
-      from { opacity: 0; transform: translateX(-5px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .peso-label {
@@ -612,7 +636,7 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      margin-top: 4px;
+      margin-top: 0;
     }
 
     .btn-add-caixa:hover {
@@ -708,10 +732,7 @@
         </div>
       </div>
 
-      <button
-        class="btn"
-        id="btnRevisar"
-        onclick="revisarConferencia()">
+      <button class="btn" id="btnRevisar" onclick="revisarConferencia()">
 
         Revisar conferência
 
@@ -754,8 +775,8 @@
         produto: 'Coco Verde',
         unidade: 'un'
       },
-      { 
-        codigo: '005', 
+      {
+        codigo: '005',
         produto: 'Uva preta sem caroço bdj 500g',
         unidade: 'bdj'
       }
@@ -796,7 +817,7 @@
           (Cód. ${escapeHtml(produto.codigo)})
         </span>
       `;
-      
+
       const listaPesosContainer = document.getElementById('modalListaPesos');
       const btnAddCaixa = document.getElementById('btnAddCaixaModal');
       const camposUnitarioContainer = document.getElementById('modalCamposUnitario');
@@ -818,21 +839,21 @@
         document.getElementById('btnAddCaixaModal').onclick = () => {
           adicionarCaixaNoModal(produto.unidade || 'kg');
         };
-        
+
         document.getElementById('btnSalvarModal').onclick = () => {
           confirmarPesagem();
         };
 
         renderizarLinhasModal(pesos, produto.unidade || 'kg');
-        
+
         document.getElementById('modalPesagem').style.display = 'flex';
-        
+
         const primeiroInput = document.querySelector('.peso-input');
         if (primeiroInput) {
           primeiroInput.focus();
           primeiroInput.select();
         }
-        
+
         atualizarResumoModal(produto.unidade || 'kg');
       } else {
         // Produtos unitários
@@ -872,7 +893,7 @@
           const cx = parseInt(inputCaixasTotais.value) || 0;
           const itens = parseInt(inputItensPorCaixa.value) || 0;
           const totalItens = cx * itens;
-          
+
           const resumoDiv = document.getElementById('modalResumoTexto');
           resumoDiv.textContent = `Total: ${cx} caixa(s) | ${totalItens} ${produto.unidade || 'un'}`;
         };
@@ -946,7 +967,7 @@
     function adicionarCaixaNoModal(unidade) {
       const container = document.getElementById('modalListaPesos');
       const numCaixas = container.querySelectorAll('.peso-row').length;
-      
+
       const newIndex = numCaixas;
       const html = `
         <div class="peso-row" id="pesoRow_${newIndex}">
@@ -968,17 +989,17 @@
           </button>
         </div>
       `;
-      
+
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = html;
       container.appendChild(tempDiv.firstElementChild);
-      
+
       const inputs = container.querySelectorAll('.peso-input');
       const novoInput = inputs[inputs.length - 1];
       if (novoInput) {
         novoInput.focus();
       }
-      
+
       atualizarResumoModal(unidade);
     }
 
@@ -990,18 +1011,18 @@
           pesos.push(input.value);
         }
       });
-      
+
       if (pesos.length === 0) {
         pesos.push('');
       }
-      
+
       renderizarLinhasModal(pesos, unidade);
-      
+
       const novosInputs = document.querySelectorAll('.peso-input');
       if (novosInputs.length > 0) {
         novosInputs[novosInputs.length - 1].focus();
       }
-      
+
       atualizarResumoModal(unidade);
 
     }
@@ -1010,7 +1031,7 @@
       const inputs = document.querySelectorAll('.peso-input');
       let totalCaixas = 0;
       let totalPeso = 0;
-      
+
       inputs.forEach(input => {
         const val = Number(input.value.replace(',', '.')) || 0;
         if (val > 0) {
@@ -1018,7 +1039,7 @@
           totalPeso += val;
         }
       });
-      
+
       const resumoDiv = document.getElementById('modalResumoTexto');
       resumoDiv.textContent = `Total: ${totalCaixas} caixa(s) | ${totalPeso.toFixed(3).replace(/\.?0+$/, '')} ${unidade}`;
     }
@@ -1030,7 +1051,7 @@
 
     function confirmarPesagem() {
       if (modalIndexAtual === null) return;
-      
+
       const produto = produtos[modalIndexAtual];
       const unidade = (produto.unidade || 'kg').trim().toLowerCase();
       const isKg = unidade === 'kg';
@@ -1043,7 +1064,7 @@
         const pesos = [];
         let totalCaixas = 0;
         let totalPeso = 0;
-        
+
         inputs.forEach(input => {
           const valStr = input.value.trim();
           if (valStr !== '') {
@@ -1055,9 +1076,9 @@
             }
           }
         });
-        
+
         produto.pesosCaixas = pesos;
-        
+
         if (inputCaixas) {
           inputCaixas.value = totalCaixas > 0 ? totalCaixas : '';
         }
@@ -1089,7 +1110,7 @@
           inputQtdPeso.value = totalItens > 0 ? totalItens : '';
         }
       }
-      
+
       fecharModalPesagem();
     }
 
@@ -1141,7 +1162,7 @@
       const callbackName =
         'receberProdutos_' + Date.now();
 
-      window[callbackName] = function(lista) {
+      window[callbackName] = function (lista) {
 
         try {
 
@@ -1236,10 +1257,10 @@
 
         ${lista.map((produto, index) => {
 
-          const unidade =
-            produto.unidade || 'kg/un';
+        const unidade =
+          produto.unidade || 'kg/un';
 
-          return `
+        return `
 
             <div class="produto-card">
 
@@ -1296,7 +1317,7 @@
             </div>
 
           `;
-        }).join('')}
+      }).join('')}
 
       `;
     }
@@ -1427,10 +1448,10 @@
 
           ${payload.itens.map((item) => {
 
-            const unidade =
-              item.unidade || 'kg/un';
+        const unidade =
+          item.unidade || 'kg/un';
 
-            return `
+        return `
 
               <div class="review-row">
 
@@ -1463,7 +1484,7 @@
               </div>
 
             `;
-          }).join('')}
+      }).join('')}
 
         </div>
 
@@ -1494,7 +1515,7 @@
       window.scrollTo(0, 0);
     }
 
-    
+
     function confirmarEnviar() {
 
       if (IS_LOCAL) {
@@ -1814,20 +1835,28 @@
   <!-- Modal de Pesagem Fracionada / Lançamento Unitário -->
   <div id="modalPesagem" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-      <div class="modal-header" style="flex-direction: column; align-items: center; text-align: center; position: relative; width: 100%; border-bottom: 1px solid var(--border); padding: 14px 16px;">
-        <button type="button" class="modal-close" onclick="fecharModalPesagem()" style="position: absolute; right: 16px; top: 12px;">&times;</button>
-        <h3 id="modalTituloTipo" style="margin: 0; font-size: 16px; color: var(--primary-dark); font-weight: bold;">Lançamento de Itens Unitários</h3>
+      <div class="modal-header"
+        style="flex-direction: column; align-items: center; text-align: center; position: relative; width: 100%; border-bottom: 1px solid var(--border); padding: 14px 16px;">
+        <button type="button" class="modal-close" onclick="fecharModalPesagem()"
+          style="position: absolute; right: 16px; top: 12px;">&times;</button>
+        <h3 id="modalTituloTipo" style="margin: 0; font-size: 16px; color: var(--primary-dark); font-weight: bold;">
+          Lançamento de Itens Unitários</h3>
         <div id="modalProdutoSubtitulo" class="modal-product-subtitle">
           <!-- Nome e código do produto -->
         </div>
       </div>
       <div class="modal-body">
-        <div id="modalListaPesos">
-          <!-- Linhas de peso inseridas dinamicamente -->
+        <div class="modal-lista-scroll">
+          <div id="modalListaPesos">
+            <!-- Linhas de peso inseridas dinamicamente -->
+          </div>
         </div>
-        <button type="button" class="btn-add-caixa" id="btnAddCaixaModal">
-          ➕ Adicionar Caixa
-        </button>
+
+        <div class="modal-add-fixo">
+          <button type="button" class="btn-add-caixa" id="btnAddCaixaModal">
+            ➕ Adicionar Caixa
+          </button>
+        </div>
 
         <div id="modalCamposUnitario" style="display: none;">
           <div class="field">
@@ -1853,4 +1882,5 @@
   </div>
 
 </body>
+
 </html>
